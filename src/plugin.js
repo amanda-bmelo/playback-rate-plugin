@@ -98,7 +98,7 @@ export default class PlaybackRatePlugin extends UICorePlugin {
 
   // just for onboarding task
   onVideoMetadataLoaded() {
-    console.log("::: Eu sou um evento de playback! :::");
+    Log.warn("::: Eu sou um evento de playback! :::");
   }
 
   getExternalInterface() {
@@ -125,6 +125,8 @@ export default class PlaybackRatePlugin extends UICorePlugin {
     this.playbackRates = config.options || DEFAULT_PLAYBACK_RATES;
     this.selectedRate = config.defaultValue || DEFAULT_PLAYBACK_RATE;
     this.rateSuffix = config.rateSuffix || DEFAULT_PLAYBACK_RATE_SUFFIX;
+
+    this.core.$el.find('video, audio').get(0).playbackRate = this.selectedRate;
 
     this.$el.html(
       this.template({
@@ -164,14 +166,18 @@ export default class PlaybackRatePlugin extends UICorePlugin {
 
   toNumber(value) {
     value = Number(value);
-    // Fallback to default playback rate if cannot be converted
     return isNaN(value) ? DEFAULT_PLAYBACK_RATE : value;
   }
 
   setSelectedRate(rate) {
     rate = this.toNumber(rate);
-    this.playback.el.playbackRate = rate;
+
+    this.core.$el.find('video, audio').get(0).playbackRate = rate;
     this.selectedRate = rate;
+
+    this.core.options.playbackRateConfig = {}
+    this.core.options.playbackRateConfig.defaultValue = rate;
+    
     this.updateText();
   }
 
